@@ -2,13 +2,13 @@
 
 Planeador de entregas para motoristas, com as zonas de **Aveiro** e **Viseu** na mesma app (escolhe a zona em «Planear → Zona de trabalho»). Calcula a melhor ordem das paragens na rede rodoviária real, com regresso ao armazém, e abre a navegação até cada paragem no **Google Maps** ou no **Waze**.
 
-**👉 Abrir a aplicação: https://macasa2022.github.io/rotas-aveiro/**
+**👉 Abrir a aplicação: https://macasa2022.github.io/rotas-entregas/**
 
 Funciona no telemóvel (Android e iPhone) e no computador. É gratuita, não precisa de conta nem de chaves de acesso.
 
 ## Instalar no telemóvel
 
-- **Android (Chrome):** abre o endereço acima → 3 pontos → **Instale e crie um atalho → Instalar**. Se já tinhas a app «Rotas Aveiro» instalada, ela atualiza-se sozinha (a volta guardada mantém-se).
+- **Android (Chrome):** abre o endereço acima → 3 pontos → **Instale e crie um atalho → Instalar**. Se tinhas a antiga app «Rotas Aveiro» instalada, apaga-a e instala esta a partir do endereço novo (a volta guardada mantém-se).
 - **iPhone (Safari):** abre o endereço acima → botão **Partilhar** → **Adicionar ao ecrã principal**.
 
 A aplicação fica com um ícone próprio, abre em ecrã inteiro e, depois da primeira utilização, abre mesmo sem Internet (a lista de entregas e os estados continuam acessíveis).
