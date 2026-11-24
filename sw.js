@@ -1,7 +1,7 @@
-// Rotas Aveiro — serviço de arranque: permite instalar a aplicação e abri-la sem Internet.
+// Rotas Entregas (Aveiro e Viseu) — serviço de arranque: permite instalar a aplicação e abri-la sem Internet.
 // Só guarda os ficheiros da própria aplicação. Mapas, pesquisa de moradas e rotas vão sempre à rede e nunca são guardados aqui.
 // Estratégia «rede primeiro»: com Internet usa sempre a versão mais recente; sem Internet usa a última guardada.
-const CACHE = 'rotas-aveiro-app-v1';
+const CACHE = 'rotas-aveiro-app-v4-0';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './icon-180.png'];
 self.addEventListener('install', event => {
   self.skipWaiting();

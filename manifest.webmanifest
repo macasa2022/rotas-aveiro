@@ -1,7 +1,7 @@
 {
-  "name": "Rotas Aveiro — entregas",
-  "short_name": "Rotas Aveiro",
-  "description": "Planeador de entregas em Aveiro: otimiza a ordem das paragens na rede rodoviária real e abre a navegação no Google Maps ou Waze.",
+  "name": "Rotas Entregas — Aveiro e Viseu",
+  "short_name": "Rotas Entregas",
+  "description": "Planeador de entregas (zonas de Aveiro e Viseu): lê a guia em PDF, otimiza a ordem das paragens na rede rodoviária real e abre a navegação no Google Maps ou Waze.",
   "lang": "pt-PT",
   "start_url": "./",
   "scope": "./",

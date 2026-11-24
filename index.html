@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="pt-PT">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#123c42"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Rotas Aveiro"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png">
-<title>Rotas Aveiro · Entregas</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#123c42"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Rotas Entregas"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png">
+<title>Rotas Entregas</title>
 <style>/* required styles */
 
 .leaflet-pane,
@@ -720,10 +720,13 @@ a.nav-btn:focus-visible{outline:3px solid #da961d;outline-offset:2px}
 #save-note.warn{color:#b3261e;font-weight:650}
 .pin.st-entregue{background:#13705b}.pin.st-nao-entregue{background:#b3261e}.pin.st-pendente{background:#1d6b8f}
 .pin.next{width:38px;height:38px;line-height:32px;background:#da961d;transform:translate(-2px,-2px)}
-#map-hint{position:absolute;left:12px;right:12px;bottom:18px;z-index:1000;background:#123c42;color:#fff;border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:center;font-size:15px;box-shadow:0 4px 16px #0005}
+#map-hint{position:absolute;left:12px;right:12px;top:12px;z-index:1100;background:#123c42;color:#fff;border-radius:12px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px;line-height:1.35;box-shadow:0 4px 16px #0005}
+#map-hint #map-hint-ok{background:#11714f;color:#fff;border-color:#11714f;font-weight:700}
+.place-pin{width:38px;height:38px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#c2410c;border:3px solid #fff;box-shadow:0 2px 8px #0006}
+.place-pin b{display:block;transform:rotate(45deg);color:#fff;text-align:center;line-height:32px;font-size:13px}
 #map-hint[hidden]{display:none}
-#map-hint span{flex:1}
-#map-hint button{min-height:44px}
+#map-hint span{flex:1 1 220px}
+#map-hint button{min-height:44px;width:auto;flex:0 0 auto;margin:0;padding:0 14px}
 @media(max-width:760px){
  header{padding:12px 16px}header h1{font-size:21px}header p{font-size:13px}
  main{display:flex;flex-direction:column;min-height:0}
@@ -740,13 +743,31 @@ a.nav-btn:focus-visible{outline:3px solid #da961d;outline-offset:2px}
  .modes button,.actions button{min-height:48px;font-size:15px}
  input,textarea{font-size:16px}
 }
+/* v4.0 — zona de trabalho */
+.zone-title{font-weight:400;opacity:.75;font-size:.72em}
+.zone-box{background:#e8f1f2;border-radius:12px;padding:10px 12px;margin:0 0 14px}
+.zone-box label{font-weight:700}
+.zone-box select{width:100%;font:inherit;font-size:16px;padding:8px;margin-top:4px;border:1px solid #9fb9b6;border-radius:8px;background:#fff}
+.zone-box .hint{margin:6px 0 0}
+/* v3.5/3.6 — dados da entrega */
+.stop-info{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0}
+.stop-info .chip{font-size:.8rem;padding:3px 8px;border-radius:999px;background:#e8f1f2;color:#123c42;font-weight:600}
+.stop-info .chip.franja.am{background:#fff3d6;color:#7a4b00}
+.stop-info .chip.franja.pm{background:#e7e9ff;color:#2d3480}
+.stop-info .chip.tipo.recolha{background:#e6f5e9;color:#1f6b33}
+.stop-info .artigo{flex-basis:100%;margin:2px 0 0;font-weight:600}
+.stop-info .hint{flex-basis:100%;margin:0}
+.info-edit{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0}
+.info-edit label{font-size:.8rem;display:flex;flex-direction:column;gap:2px}
+.info-edit .wide{grid-column:1/-1}
 </style></head><body>
-<header><div><h1>Rotas Aveiro</h1><p>Um armazém. Várias entregas. Uma rota circular.</p></div><span class="badge">FASE 3 · ENTREGAS E NAVEGAÇÃO</span></header>
+<header><div><h1>Rotas Entregas <span id="zone-title" class="zone-title">· Aveiro</span></h1><p>Um armazém. Várias entregas. Uma rota circular.</p></div><span class="badge">v4.0 · AVEIRO E VISEU NUMA SÓ APP</span></header>
 <div id="net-banner" role="alert" hidden>Sem Internet. A lista, os estados e o progresso continuam a funcionar e ficam guardados. O mapa, a pesquisa de moradas e o recálculo precisam de Internet; o Google Maps e o Waze podem funcionar com mapas offline dessas apps.</div>
 <main data-view="planear"><aside>
 <nav class="tabs" role="tablist" aria-label="Secções"><button role="tab" id="tab-entregas" data-view="entregas" aria-selected="false">Entregas</button><button role="tab" data-view="planear" aria-selected="true">Planear</button><button role="tab" class="tab-map" data-view="mapa" aria-selected="false">Mapa</button></nav>
 <section id="trip-panel" class="panel" aria-label="Entregas da volta"><div id="trip-status" class="trip-status" role="status" aria-live="polite"></div><div id="trip-body"></div><p id="save-note" class="hint"></p><p class="hint">Só são guardados neste dispositivo os pontos, as moradas, a sequência e os estados. Não escrevas nomes, telefones ou notas pessoais dos destinatários nas moradas.</p></section>
 <div id="plan-panel" class="panel">
+<div class="zone-box"><label for="zone-select">Zona de trabalho</label><select id="zone-select"><option value="aveiro">Aveiro</option><option value="viseu">Viseu</option></select><p class="hint">Define onde o mapa abre, a localidade por omissão e os exemplos. As moradas de outras zonas (com código postal) continuam a ser encontradas.</p></div>
 <h2>Planeia a tua volta</h2><p class="hint">1. Define o armazém no mapa.<br>2. Clica nos locais das entregas.<br>3. Otimiza a sequência e regressa ao início.</p>
 <div class="modes"><button id="depot" aria-pressed="true">Definir armazém</button><button id="delivery" aria-pressed="false">Adicionar entregas</button></div>
 <label for="depot-address">Ou indica a morada do armazém</label><div class="depot-row"><input id="depot-address" maxlength="300" placeholder="Ex.: Rua de Viseu, 10, Aveiro"><button id="locate-depot">Localizar</button></div><div id="depot-options" class="candidates hint"></div>
@@ -759,7 +780,7 @@ a.nav-btn:focus-visible{outline:3px solid #da961d;outline-offset:2px}
 <h2>Importar moradas</h2>
 <p class="hint">Fotografia da folha, Excel (.xlsx), CSV ou TXT · até 100 entregas. Tudo é lido só neste dispositivo; nomes e telefones não são usados.</p>
 <label for="photo-file" id="photo-label" class="photo-btn">📷 Fotografar ou escolher foto da folha</label><input id="photo-file" class="visually-hidden" type="file" accept="image/*" multiple><button id="ocr-cancel" hidden>Cancelar leitura da fotografia</button><p class="hint">Folha A4, guia ou etiquetas · até 6 fotos (páginas) de cada vez. Tira a foto de frente, com boa luz e a folha inteira. Uma app de digitalizar também serve: guarda a digitalização como imagem (JPG).</p>
-<label for="address-file">Carregar ficheiro (Excel, CSV ou TXT)</label><input id="address-file" type="file" accept=".xlsx,.csv,.txt,text/plain,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+<label for="address-file">Carregar ficheiro (PDF da guia, Excel, CSV ou TXT)</label><input id="address-file" type="file" accept=".pdf,application/pdf,.xlsx,.csv,.txt,text/plain,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
 <div id="sheet-map" class="sheet-map" hidden></div>
 <label for="default-locality">Localidade por omissão</label><input id="default-locality" value="Aveiro" maxlength="100">
 <label for="address-text">Ou cola aqui as moradas</label><p class="hint tip">Também podes colar texto copiado de um PDF, de uma mensagem ou de uma foto com o <b>Google Lens</b> / <b>Texto Ativo</b> (útil quando a foto é difícil de ler) e carregar em <b>Organizar texto colado</b>.</p><textarea id="address-text" rows="4" maxlength="100000" placeholder="Avenida Lourenço Peixinho, nº 184, 3º Esq.&#10;Rua do Barreiro, nº 09 - 11"></textarea>
@@ -774,7 +795,7 @@ a.nav-btn:focus-visible{outline:3px solid #da961d;outline-offset:2px}
 <h2 id="count">Pontos selecionados</h2><ul id="stops"></ul>
 <details><summary>Sobre o cálculo e os dados</summary><p>Até 12 entregas: sequência ótima para a matriz recebida (Held–Karp). De 13 a 100: heurística adaptada a sentidos únicos. Minimiza-se a distância dos percursos recomendados pelo OSRM, que privilegia rapidez/acessibilidade; não se garante o percurso global mais curto de toda a rede. Restrições temporárias, condicionais ou ausentes do mapa podem não estar refletidas.</p><p>Os pontos ficam apenas na memória desta página. Ao fechar ou recarregar, são apagados. A ordenação é local. Ao otimizar, as coordenadas são enviadas ao serviço público OSRM/FOSSGIS, que pode registá-las nos seus logs. Usa pontos simulados neste protótipo. O serviço é partilhado e não garante disponibilidade; um pedido por segundo, sem uso intensivo. Usa apenas uma janela de cálculo de cada vez. O fundo do mapa requer Internet e é fornecido pelo OpenStreetMap; o fornecedor recebe os pedidos da área visualizada.</p><p>Mapa: Leaflet 1.9.4, licença BSD-2-Clause incorporada no código do ficheiro.</p></details>
 </div>
-</aside><section class="map-wrap" aria-label="Mapa interativo de Aveiro"><div id="map"></div><div id="map-hint" hidden><span id="map-hint-text"></span><button id="map-hint-close" aria-label="Cancelar escolha no mapa">Cancelar</button></div><div id="map-notice" role="alert" hidden>Não foi possível carregar parte do mapa. Verifica a ligação à Internet. Os pontos são mantidos; o cálculo rodoviário também precisa de Internet.</div></section></main>
+</aside><section class="map-wrap" aria-label="Mapa interativo"><div id="map"></div><div id="map-hint" hidden><span id="map-hint-text"></span><button id="map-hint-ok" class="primary" hidden>✓ Confirmar</button><button id="map-hint-close" aria-label="Cancelar escolha no mapa">Cancelar</button></div><div id="map-notice" role="alert" hidden>Não foi possível carregar parte do mapa. Verifica a ligação à Internet. Os pontos são mantidos; o cálculo rodoviário também precisa de Internet.</div></section></main>
 <script>
 /*
 BSD 2-Clause License
@@ -831,6 +852,14 @@ function validateMatrix(matrix) {
 }
 let pointLabelOverride = null;
 function pointLabel(index) { if (pointLabelOverride) return pointLabelOverride(index); return index === 0 ? 'Armazém' : 'Entrega ' + index; }
+// Horários (franjas): as entregas da manhã (AM) vêm antes das da tarde (PM). Qualquer passagem de uma paragem PM
+// para uma AM recebe um custo enorme, por isso o otimizador põe todas as AM primeiro e, dentro de cada grupo, minimiza a distância.
+// As paragens sem horário ficam livres. A distância mostrada é sempre a da rede rodoviária, não este custo.
+const FRANJA_PENALTY = 1e7;
+function franjaCosts(matrix, windows) {
+  if (!windows || !windows.includes('AM') || !windows.includes('PM')) return matrix;
+  return matrix.map((row, origin) => row.map((value, destination) => windows[origin] === 'PM' && windows[destination] === 'AM' ? value + FRANJA_PENALTY : value));
+}
 function optimizeMatrix(matrix) {
   validateMatrix(matrix);
   const count = matrix.length - 1;
@@ -1006,7 +1035,43 @@ class RoadClient {
 
 </script>
 <script>
-function parseAddresses(text, defaultLocality = 'Aveiro') {
+// Dados da entrega (4.º campo opcional): «nome=Ana Silva; franja=AM; tipo=Entrega; artigo=TV Hisense; guia=1003602602; paragem=2»
+const INFO_KEYS = {nome:'nome', cliente:'nome', destinatario:'nome', franja:'franja', horario:'franja', tipo:'tipo', artigo:'artigo', artigos:'artigo', guia:'guia', paragem:'paragem', obs:'obs'};
+function normalizeFranja(value) {
+  const text = String(value || '').trim().toUpperCase();
+  if (/^(AM|MANH[AÃ])$/.test(text)) return 'AM';
+  if (/^(PM|TARDE)$/.test(text)) return 'PM';
+  const range = /(\d{1,2})\s*[H:]?\s*\d{0,2}\s*[-–A]\s*(\d{1,2})/.exec(text);
+  if (range) return Number(range[1]) < 13 && Number(range[2]) <= 14 ? 'AM' : 'PM';
+  return '';
+}
+function normalizeTipo(value) {
+  const text = String(value || '').toLowerCase();
+  if (/sucata|recolha|levantamento|suc\b|recolh/.test(text)) return 'Recolha';
+  if (/entrega|ent\b/.test(text)) return 'Entrega';
+  return '';
+}
+function parseStopInfo(text) {
+  const info = {};
+  String(text || '').split(';').forEach(part => {
+    const match = /^\s*([a-zà-ú]+)\s*=\s*(.*?)\s*$/i.exec(part); if (!match) return;
+    const key = INFO_KEYS[normText(match[1])]; if (!key || !match[2]) return;
+    info[key] = match[2].replace(/[<>]/g, '').slice(0, 160);
+  });
+  if (info.franja) info.franja = normalizeFranja(info.franja) || '';
+  if (info.tipo) info.tipo = info.tipo.split(/\s*\+\s*/).map(normalizeTipo).filter((v, i, a) => v && a.indexOf(v) === i).join(' + ');
+  Object.keys(info).forEach(key => {if (!info[key]) delete info[key];});
+  return info;
+}
+function formatStopInfo(info) {
+  if (!info) return '';
+  return ['nome', 'franja', 'tipo', 'artigo', 'guia', 'paragem', 'obs'].filter(key => info[key]).map(key => key + '=' + String(info[key]).replace(/[;|=]/g, ' ')).join('; ');
+}
+function infoSummary(info) {
+  if (!info) return '';
+  return [info.franja ? '🕘 ' + info.franja : '', info.tipo ? (info.tipo.includes('Recolha') ? '♻ ' : '📦 ') + info.tipo : '', info.artigo || '', info.guia ? 'Guia ' + info.guia : ''].filter(Boolean).join(' · ');
+}
+function parseAddresses(text, defaultLocality = currentZone().nome) {
   if (typeof text !== 'string' || text.length > 100000) throw new Error('O ficheiro é demasiado grande (máximo 100 KB).');
   const lines = text.replace(/^\uFEFF/, '').split(/\r\n|\n|\r/).map(line => line.trim()).filter(line => line && !line.startsWith('#'));
   if (!lines.length) throw new Error('O ficheiro não contém moradas. Coloca uma morada por linha.');
@@ -1015,19 +1080,22 @@ function parseAddresses(text, defaultLocality = 'Aveiro') {
   return lines.map((line, index) => {
     if (line.length > 500 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\ufffd]/.test(line)) throw new Error('Linha ' + (index + 1) + ': texto inválido ou demasiado longo. Guarda o TXT em UTF-8.');
     const fields = line.split('|').map(value => value.trim());
-    if (fields.length > 3 || !fields[0]) throw new Error('Linha ' + (index + 1) + ': usa morada | localidade | código postal (os dois últimos são opcionais).');
-    const [address, locality = defaultLocality, postal = ''] = fields;
+    if (fields.length > 4 || !fields[0]) throw new Error('Linha ' + (index + 1) + ': usa morada | localidade | código postal | dados (os três últimos são opcionais).');
+    const [address, localityField = '', postal = '', infoField = ''] = fields;
+    const locality = localityField || (postal ? '' : defaultLocality);
     if (postal && !/^\d{4}-\d{3}$/.test(postal)) throw new Error('Linha ' + (index + 1) + ': código postal inválido; usa 0000-000.');
     const pieces = address.split(',').map(value => value.trim()).filter(Boolean);
-    const detailPattern = /(?:\d+\s*\.?\s*[º°ª]|\b(?:andar|piso|apartamento|apto|fração|fraccao|esq|dto|dir|rés|res-do-chao|r\/c|cave|bloco)\b)/i;
+    const detailPattern = /(?:\d+\s*\.?\s*[º°ª]|\b(?:andar|piso|apartamento|apto|fração|fraccao|frac|esq|dto|dir|rés|res-do-chao|r\/c|cave|bloco|edif[ií]cio)\b)/i;
     const details = pieces.filter((piece, part) => part > 0 && detailPattern.test(piece));
     const street = pieces.filter((piece, part) => part === 0 || !detailPattern.test(piece)).join(', ').replace(/\b(?:n[úu]mero|n\.?\s*[º°o]\.?)[\s:]*(?=\d)/gi, '');
-    const localityText = (locality || defaultLocality).trim();
-    if (!localityText || localityText.length > 100) throw new Error('Indica uma localidade válida.');
+    const localityText = (locality || '').trim();
+    if ((!localityText && !postal) || localityText.length > 100) throw new Error('Indica uma localidade válida.');
     const query = [street,localityText,postal,'Portugal'].filter(Boolean).join(', ');
     const duplicateKey = line.normalize('NFKC').toLocaleLowerCase('pt-PT').replace(/\s+/g,' ');
     const duplicate = seen.has(duplicateKey); seen.add(duplicateKey);
-    return {original:line,address,details:details.join(', '),query,street,locality:localityText,postal,status:'pendente',options:[],duplicate,range:/\d+\s*[-–—/]\s*\d+(?!\d)/.test(street.replace(/\b\d{4}-\d{3}\b/g,'')),point:null,confirmed:false,candidates:[]};
+    const info = parseStopInfo(infoField);
+    const original = infoField ? fields.slice(0, 3).filter(Boolean).join(' | ') : line;
+    return {original,info,address,details:details.join(', '),query,street,locality:localityText,postal,status:'pendente',options:[],duplicate,range:/\d+\s*[-–—/]\s*\d+(?!\d)/.test(street.replace(/\b\d{4}-\d{3}\b/g,'')),point:null,confirmed:false,candidates:[]};
   });
 }
 
@@ -1071,7 +1139,25 @@ function houseNumbers(query) {
   if (trailing && !/\bde\s+\w+$/i.test(parts[0])) numbers.push(...normNumbers(trailing[1]), ...normNumbers(trailing[2]));
   return [...new Set(numbers.map(number => number.replace(/\s+/g, '')))];
 }
-const AVEIRO_CENTRE = [40.6405, -8.6538];
+// Zonas de trabalho (antes, uma app por cidade). A zona escolhida fica guardada neste aparelho.
+const ZONES = {
+  aveiro:{nome:'Aveiro', centro:[40.6405, -8.6538], armazemExemplo:[40.640443, -8.653974],
+    entregasExemplo:[[40.644775, -8.650499], [40.633105, -8.658767], [40.642875, -8.645491], [40.638209, -8.648979], [40.6401, -8.6481]],
+    placeholderArmazem:'Ex.: Rua de Viseu, 10, Aveiro', placeholderMoradas:'Avenida Lourenço Peixinho, nº 184, 3º Esq.\nRua do Barreiro, nº 09 - 11',
+    modeloTxt:'Avenida Lourenço Peixinho, nº 184, 3º Esq. | Aveiro\nRua do Barreiro, nº 09 - 11 | Aveiro\n',
+    modeloCsv:'Avenida Doutor Lourenço Peixinho;184;3800-167;Aveiro;\r\nRua de Viseu;10;3800-261;Aveiro;\r\n'},
+  viseu:{nome:'Viseu', centro:[40.6566, -7.9125], armazemExemplo:[40.669728, -7.919632],
+    entregasExemplo:[[40.657249, -7.911524], [40.659715, -7.909854], [40.676623, -7.920515], [40.642596, -7.901735], [40.659152, -7.911878]],
+    placeholderArmazem:'Ex.: Avenida da Europa, Viseu', placeholderMoradas:'Rua Formosa, nº 83, 2º Esq.\nRua Direita | Viseu | 3500-116',
+    modeloTxt:'Rua Formosa, nº 83, 2º Esq. | Viseu\nRua Direita | Viseu | 3500-116\n',
+    modeloCsv:'Rua Formosa;83;3500-135;Viseu;\r\nRua do Comércio;10;3500-138;Viseu;\r\n'}
+};
+const ZONE_KEY = 'rotas-zona-v1';
+let zoneKey = (() => {try {const saved = localStorage.getItem(ZONE_KEY); return ZONES[saved] ? saved : 'aveiro';} catch (error) {return 'aveiro';}})();
+function currentZone() {return ZONES[zoneKey] || ZONES.aveiro;}
+const AVEIRO_CENTRE = ZONES.aveiro.centro;
+// Referência da pesquisa: o armazém (qualquer zona do país); sem armazém, o centro da cidade.
+function searchCentre() {return (typeof depot !== 'undefined' && Array.isArray(depot)) ? depot : currentZone().centro;}
 function rankCandidates(candidates, row) {
   const wanted = houseNumbers(row.query);
   let streetName = '';
@@ -1087,7 +1173,8 @@ function rankCandidates(candidates, row) {
     const place = ' ' + normText([candidate.zone, candidate.city, candidate.name].join(' ')) + ' ';
     if (locality && place.includes(' ' + locality + ' ')) score += 15;
     if (locality && (normText(candidate.zone) === locality || normText(candidate.city) === locality)) score += 20;
-    if (geoDistance(AVEIRO_CENTRE, candidate.point) > 40000) score -= 50;
+    // Sem código postal, desconfia de resultados muito longe do armazém (rotas longas, ex.: Maia → Viana, cabem em 150 km).
+    if (!postal && geoDistance(searchCentre(), candidate.point) > (Array.isArray(typeof depot !== 'undefined' ? depot : null) ? 150000 : 40000)) score -= 50;
     return {...candidate, score, similarity, numberMatch};
   }).sort((first, second) => second.score - first.score);
 }
@@ -1130,7 +1217,7 @@ function parseMapCoordinates(text) {
 </script>
 <script>
 const byId = id => document.getElementById(id);
-const map = L.map('map').setView([40.6405,-8.6538],14);
+const map = L.map('map').setView(currentZone().centro,14);
 if (location.protocol !== 'file:') L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19, attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · Rotas: <a href="https://routing.openstreetmap.de/about.html">OSRM/FOSSGIS</a> · <a href="https://www.openstreetmap.org/fixthemap">Corrigir mapa</a>'}).on('tileerror', () => {byId('map-notice').hidden = false;}).addTo(map);
 const markers = L.layerGroup().addTo(map);
 const routeLayer = L.layerGroup().addTo(map);
@@ -1142,9 +1229,10 @@ let mode = 'depot';
 let active = null;
 let cached = null;
 const deliveryMetadata = new Map();
+const deliveryInfo = new Map(); // ponto → {nome, franja, tipo, artigo, guia, paragem}
 function stopLabel(index) { return index === 0 ? 'Armazém' + (depotLabel ? ' — ' + depotLabel : '') : pointLabel(index) + (deliveryMetadata.has(deliveries[index - 1]) ? ' — ' + deliveryMetadata.get(deliveries[index - 1]) : ''); }
 function setMode(next) {
-  pendingPlacement = null;
+  if (typeof stopPlacement === 'function') stopPlacement(); else pendingPlacement = null;
   mode = next;
   byId('depot').setAttribute('aria-pressed',String(mode === 'depot'));
   byId('delivery').setAttribute('aria-pressed',String(mode === 'delivery'));
@@ -1170,7 +1258,7 @@ function render() {
     const text = document.createElement('span'); text.textContent = label + ' · ' + point.map(value => value.toFixed(4)).join(', '); item.append(text);
     if (index > 0) {
       const remove = document.createElement('button'); remove.textContent = '×'; remove.setAttribute('aria-label','Remover ' + label);
-      remove.onclick = () => {if (active) return; deliveryMetadata.delete(deliveries[index - 1]); deliveries.splice(index - 1,1); render(); byId('status').textContent = label + ' removida. Calcula novamente a rota.';}; item.append(remove);
+      remove.onclick = () => {if (active) return; deliveryMetadata.delete(deliveries[index - 1]); deliveryInfo.delete(deliveries[index - 1]); deliveries.splice(index - 1,1); render(); byId('status').textContent = label + ' removida. Calcula novamente a rota.';}; item.append(remove);
     }
     byId('stops').append(item);
   });
@@ -1180,7 +1268,7 @@ function render() {
 map.on('click',event => {
   if (active || addressRequest) return;
   const point = [event.latlng.lat,event.latlng.lng];
-  if (Math.abs(point[0]) > 85 || Math.abs(point[1]) > 180) {byId('status').textContent = 'Seleciona um ponto no mapa de Aveiro.'; return;}
+  if (Math.abs(point[0]) > 85 || Math.abs(point[1]) > 180) {byId('status').textContent = 'Seleciona um ponto no mapa.'; return;}
   if (tripMapClick(point)) return;
   if (placeImportedAddress(point)) return;
   if (mode === 'depot' || !depot) {depot = point; depotLabel = ''; cached = null; setMode('delivery'); endMapPick();}
@@ -1196,11 +1284,11 @@ byId('delivery').onclick = () => setMode(depot ? 'delivery' : 'depot');
 byId('cancel').onclick = () => {active?.abort(); byId('status').textContent = 'A cancelar…';};
 byId('clear').onclick = () => {active?.abort(); resetAddressReview(); deliveryMetadata.clear(); depot = null; depotLabel = ''; deliveries = []; cached = null; render(); setMode('depot');};
 byId('example').onclick = () => {
-  deliveryMetadata.clear(); pendingPlacement = null; depotLabel = '';
-  depot = [40.640443,-8.653974];
-  deliveries = [[40.644775,-8.650499],[40.633105,-8.658767],[40.642875,-8.645491],[40.638209,-8.648979],[40.6401,-8.6481]];
+  deliveryMetadata.clear(); deliveryInfo.clear(); if (typeof stopPlacement === 'function') stopPlacement(); depotLabel = '';
+  depot = [...currentZone().armazemExemplo];
+  deliveries = currentZone().entregasExemplo.map(point => [...point]);
   render(); setMode('delivery'); map.fitBounds([depot,...deliveries],{padding:[45,45]});
-  byId('status').textContent = 'Exemplo com 5 entregas simuladas em Aveiro. Otimiza para consultar a rede rodoviária.';
+  byId('status').textContent = 'Exemplo com 5 entregas simuladas em ' + currentZone().nome + '. Otimiza para consultar a rede rodoviária.';
 };
 byId('optimize').onclick = async () => {
   if (location.protocol === 'file:') {byId('status').textContent = 'Fecha esta página e abre INICIAR.cmd na pasta da aplicação.'; return;}
@@ -1219,7 +1307,7 @@ byId('optimize').onclick = async () => {
     controller.signal.throwIfAborted();
     cached = {key,matrix,time:Date.now()};
     progress('A otimizar a sequência por distância rodoviária…');
-    const solution = optimizeMatrix(matrix.distances);
+    const solution = optimizeMatrix(franjaCosts(matrix.distances, ['', ...deliveries.map(point => deliveryInfo.get(point)?.franja || '')]));
     const road = await client.geometry(points,solution.order,matrix,controller.signal,progress);
     controller.signal.throwIfAborted();
     const line = L.polyline(road.coordinates.map(point => [point[1],point[0]]),{color:'#11714f',weight:5,opacity:0.85}).addTo(routeLayer);
@@ -1293,7 +1381,7 @@ function refreshImportControls() {
   for (const element of byId('address-review').querySelectorAll('button,input')) element.disabled = locked;
 }
 function resetAddressReview() {
-  addressRequest?.abort(); addressRequest = null; pendingPlacement = null;
+  addressRequest?.abort(); addressRequest = null; stopPlacement();
   addressRows = []; addressPreview.clearLayers(); drawAddressReview();
 }
 function drawPreview() {
@@ -1305,6 +1393,19 @@ function drawPreview() {
     L.circleMarker(row.point,{radius:9,color:exact ? '#1d6b8f' : '#ad5900',weight:3,fillColor:'white',fillOpacity:0.9,dashArray:exact ? null : '3 3'}).addTo(addressPreview).bindTooltip(text).on('click', () => byId('address-card-' + index)?.scrollIntoView({behavior:'smooth',block:'center'}));
   });
 }
+// Dados da entrega editáveis em cada morada: nome, horário (franja), tipo e artigo. Ficam só neste aparelho.
+function infoEditor(row) {
+  row.info = row.info || {};
+  const box = document.createElement('div'); box.className = 'info-edit';
+  const field = (labelText, node, wide) => {const label = document.createElement('label'); if (wide) label.className = 'wide'; label.append(document.createTextNode(labelText), node); box.append(label);};
+  const text = (key, max, placeholder) => {const input = document.createElement('input'); input.value = row.info[key] || ''; input.maxLength = max; input.placeholder = placeholder; input.oninput = () => {const value = input.value.replace(/[<>;|=]/g, ' ').trim(); if (value) row.info[key] = value; else delete row.info[key];}; return input;};
+  const choice = (key, options) => {const select = document.createElement('select'); options.forEach(([value, caption]) => {const option = document.createElement('option'); option.value = value; option.textContent = caption; option.selected = (row.info[key] || '') === value; select.append(option);}); select.onchange = () => {if (select.value) row.info[key] = select.value; else delete row.info[key];}; return select;};
+  field('Destinatário (nome)', text('nome', 80, 'Ex.: Ana Silva'), true);
+  field('Horário', choice('franja', [['', '— sem horário —'], ['AM', 'Manhã (AM)'], ['PM', 'Tarde (PM)']]));
+  field('Tipo', choice('tipo', [['', '—'], ['Entrega', 'Entrega'], ['Recolha', 'Recolha'], ['Entrega + Recolha', 'Entrega + Recolha']]));
+  field('Artigo', text('artigo', 120, 'Ex.: Frigorífico Hisense (2 volumes)'), true);
+  return box;
+}
 function drawAddressReview() {
   byId('address-review').replaceChildren();
   addressRows.forEach((row,index) => {
@@ -1312,6 +1413,8 @@ function drawAddressReview() {
     const title = document.createElement('h3'); title.textContent = 'M' + (index + 1) + '. ' + row.original; card.append(title);
     const note = document.createElement('p'); note.className = 'row-status'; note.textContent = row.status === 'erro' && row.error ? '✗ ' + row.error : STATUS_TEXT[row.status] || ''; card.append(note);
     if (row.point && row.label) {const found = document.createElement('p'); found.className = 'hint'; found.textContent = 'Ponto usado: ' + row.label; card.append(found);}
+    if (row.point && depot && geoDistance(row.point, depot) < 300) {const near = document.createElement('p'); near.className = 'hint warn'; near.textContent = '⚠ Fica a menos de 300 m do armazém: deve ser o próprio armazém. Não é adicionada à rota — se for mesmo uma entrega, marca o ponto no mapa.'; card.append(near);}
+    card.append(infoEditor(row));
     if (row.range || row.duplicate) {
       const warning = document.createElement('p'); warning.className = 'hint';
       warning.textContent = (row.range ? 'Número composto/intervalo: se forem duas entregas, usa duas linhas. ' : '') + (row.duplicate ? 'Linha repetida: remove-a se não representar outra entrega.' : ''); card.append(warning);
@@ -1325,9 +1428,10 @@ function drawAddressReview() {
     function action(text,handler) {const button = document.createElement('button'); button.textContent = text; button.onclick = handler; actions.append(button);}
     action('Localizar',() => locateSingle(row));
     action('Pesquisar só a rua',() => {try {row.query = streetOnlyQuery(row.query); locateSingle(row);} catch (error) {importStatus(error.message);}});
-    action('Marcar no mapa',() => {pendingPlacement = row; importStatus('Clica no mapa sobre a entrada (na rua) de: ' + row.original); startMapPick('Toca na entrada (na rua) de: ' + row.original); if (!isMobile()) map.getContainer().scrollIntoView({behavior:'smooth',block:'center'});});
+    action('Marcar no mapa',() => startPlacement(row, index));
     if (row.point) action('Ver no mapa',() => {map.setView(row.point,18);});
-    action('Remover',() => {addressRows.splice(index,1); if (pendingPlacement === row) pendingPlacement = null; drawAddressReview();});
+    action('Remover',() => {addressRows.splice(index,1); if (pendingPlacement === row) stopPlacement(); drawAddressReview();});
+    action('Ignorar sempre (loja/armazém)',() => {const saved = rememberIgnored(addressKey(row.address, row.postal)); addressRows.splice(index,1); if (pendingPlacement === row) stopPlacement(); drawAddressReview(); importStatus(saved ? 'Morada removida e memorizada: nas próximas guias é ignorada automaticamente.' : 'Morada removida (este navegador não permite memorizar).');});
     card.append(actions);
     if (row.options?.length && !['exata','manual'].includes(row.status)) {
       const box = document.createElement('div'); box.className = 'candidates';
@@ -1335,7 +1439,7 @@ function drawAddressReview() {
       row.options.forEach(option => {
         const button = document.createElement('button');
         button.textContent = (row.point && geoDistance(row.point, option.point) < 1 ? '● ' : '○ ') + option.name + (option.numberMatch ? ' · nº confirmado' : ' · só a rua');
-        button.onclick = () => {row.point = [...option.point]; row.status = 'escolhida'; row.approx = !option.numberMatch; row.label = option.name; pendingPlacement = null; drawAddressReview(); map.setView(row.point,17); importStatus('Opção escolhida para M' + (index + 1) + '.');};
+        button.onclick = () => {row.point = [...option.point]; row.status = 'escolhida'; row.approx = !option.numberMatch; row.label = option.name; stopPlacement(); drawAddressReview(); map.setView(row.point,17); importStatus('Opção escolhida para M' + (index + 1) + '.');};
         box.append(button);
       });
       card.append(box);
@@ -1346,7 +1450,7 @@ function drawAddressReview() {
     coordinateInput.oninput = () => {row.coordinateText = coordinateInput.value;};
     const useCoordinates = document.createElement('button'); useCoordinates.textContent = 'Usar estas coordenadas';
     useCoordinates.onclick = () => {
-      try {row.point = parseMapCoordinates(coordinateInput.value); row.status = 'manual'; row.approx = false; row.label = 'coordenadas indicadas'; pendingPlacement = null; drawAddressReview(); map.setView(row.point,18); importStatus('Coordenadas aplicadas a M' + (index + 1) + '.');}
+      try {row.point = parseMapCoordinates(coordinateInput.value); row.status = 'manual'; row.approx = false; row.label = 'coordenadas indicadas'; stopPlacement(); drawAddressReview(); map.setView(row.point,18); importStatus('Coordenadas aplicadas a M' + (index + 1) + '.');}
       catch (error) {importStatus(error.message);}
     };
     const help = document.createElement('p'); help.className = 'hint'; help.textContent = 'No Google Maps, clica com o botão direito sobre a entrada e copia as coordenadas. Não consulta o Google.';
@@ -1356,11 +1460,43 @@ function drawAddressReview() {
   drawPreview();
   refreshImportControls();
 }
+// «Marcar no mapa»: o mapa aproxima-se do sítio provável da morada e aparece um marcador laranja.
+// Arrasta-se o marcador (ou toca-se no mapa) até à entrada, na rua, e confirma-se. Nada muda até carregar em «Confirmar».
+let placementMarker = null;
+function startPlacement(row, index) {
+  pendingPlacement = row;
+  const guess = row.point || row.options?.[0]?.point || null;
+  const centre = guess || searchCentre();
+  if (placementMarker) map.removeLayer(placementMarker);
+  placementMarker = L.marker(centre, {draggable:true, autoPan:true, zIndexOffset:1000, title:'Arrasta até à entrada', icon:L.divIcon({className:'', html:'<div class="place-pin"><b>M' + (index + 1) + '</b></div>', iconSize:[38, 38], iconAnchor:[19, 38]})}).addTo(map);
+  placementMarker.on('dragend', () => updatePlacementHint(row));
+  byId('map-hint-ok').hidden = false;
+  startMapPick('');
+  updatePlacementHint(row);
+  setTimeout(() => {map.invalidateSize(); map.setView(centre, guess ? 18 : 15);}, 80);
+  if (!isMobile()) map.getContainer().scrollIntoView({behavior:'smooth', block:'center'});
+  importStatus('A marcar no mapa: ' + row.original);
+}
+function updatePlacementHint(row) {
+  const name = row.info?.nome ? row.info.nome + ' — ' : '';
+  byId('map-hint-text').textContent = '📍 ' + name + row.original + '. Arrasta o marcador laranja (ou toca no mapa) até à entrada, na rua, e carrega em Confirmar.';
+}
+function stopPlacement() {
+  const was = Boolean(pendingPlacement || placementMarker);
+  if (placementMarker) {map.removeLayer(placementMarker); placementMarker = null;}
+  byId('map-hint-ok').hidden = true; pendingPlacement = null;
+  if (was) byId('map-hint').hidden = true;
+}
 function placeImportedAddress(point) {
   if (!pendingPlacement) return false;
-  const row = pendingPlacement;
-  row.point = point; row.status = 'manual'; row.approx = false; row.label = 'marcado no mapa (' + point.map(value => value.toFixed(5)).join(', ') + ')';
-  pendingPlacement = null; drawAddressReview(); endMapPick();
+  if (placementMarker) {placementMarker.setLatLng(point); updatePlacementHint(pendingPlacement); return true;}
+  return confirmPlacement(point);
+}
+function confirmPlacement(point) {
+  const row = pendingPlacement; if (!row) return false;
+  point = point || (placementMarker ? [placementMarker.getLatLng().lat, placementMarker.getLatLng().lng] : null); if (!point) return false;
+  row.point = point; row.status = 'manual'; row.approx = false; row.byPostal = false; row.label = 'marcado no mapa (' + point.map(value => value.toFixed(5)).join(', ') + ')';
+  stopPlacement(); drawAddressReview(); endMapPick();
   importStatus('Ponto marcado para ' + row.original + '.'); return true;
 }
 const LOCAL_PROXY = location.protocol === 'http:';
@@ -1378,14 +1514,14 @@ async function directGeocode(query, signal) {
   const features = []; let attempts = 0, failures = 0;
   try {
     attempts++; await directThrottle('photon'); signal.throwIfAborted();
-    const response = await fetch('https://photon.komoot.io/api/?' + new URLSearchParams({q:query, limit:8, lat:40.6405, lon:-8.6538}), {signal});
+    const response = await fetch('https://photon.komoot.io/api/?' + new URLSearchParams({q:query, limit:8, lat:searchCentre()[0].toFixed(4), lon:searchCentre()[1].toFixed(4)}), {signal});
     if (!response.ok) throw new Error(String(response.status));
     const data = await response.json(); (data.features || []).forEach(feature => {if (feature && feature.properties) {feature.properties.source = 'photon'; features.push(feature);}});
   } catch (error) {if (signal.aborted) throw error; failures++;}
   if (!features.some(feature => feature.properties.housenumber)) {
     try {
       attempts++; await directThrottle('nominatim'); signal.throwIfAborted();
-      const response = await fetch('https://nominatim.openstreetmap.org/search?' + new URLSearchParams({q:query, format:'jsonv2', addressdetails:1, limit:8, countrycodes:'pt', viewbox:'-8.85,40.95,-8.30,40.45', bounded:0}), {signal});
+      const response = await fetch('https://nominatim.openstreetmap.org/search?' + new URLSearchParams({q:query, format:'jsonv2', addressdetails:1, limit:8, countrycodes:'pt', viewbox:[searchCentre()[1] - 0.6, searchCentre()[0] + 0.6, searchCentre()[1] + 0.6, searchCentre()[0] - 0.6].map(value => value.toFixed(3)).join(','), bounded:0}), {signal});
       if (!response.ok) throw new Error(String(response.status));
       const data = await response.json(); (Array.isArray(data) ? data : []).map(nominatimFeature).filter(Boolean).forEach(feature => features.push(feature));
     } catch (error) {if (signal.aborted) throw error; failures++;}
@@ -1398,7 +1534,8 @@ async function directGeocode(query, signal) {
 async function geocodeQuery(query, signal) {
   if (!LOCAL_PROXY) return directGeocode(query, signal);
   for (let attempt = 0; attempt < 3; attempt++) {
-    const response = await fetch('/geocode?q=' + encodeURIComponent(query),{signal});
+    const centre = searchCentre();
+    const response = await fetch('/geocode?q=' + encodeURIComponent(query) + '&lat=' + centre[0].toFixed(4) + '&lon=' + centre[1].toFixed(4),{signal});
     if (response.status === 429 && attempt < 2) {await new Promise(resolve => setTimeout(resolve, 2500)); signal.throwIfAborted(); continue;}
     if (response.status === 403) throw new Error('Abre a aplicação através do INICIAR.cmd (endereço 127.0.0.1).');
     if (!response.ok) throw new Error(response.status === 429 ? 'Serviço de pesquisa ocupado. Aguarda um pouco e tenta novamente.' : 'Serviço de pesquisa indisponível. Verifica a Internet ou marca o ponto no mapa.');
@@ -1419,6 +1556,12 @@ async function locateRow(row, signal) {
         if (choice.status === 'exata') choice.status = 'aproximada';
       }
     }
+    if (choice.status === 'nao-encontrada' && row.postal) {
+      // Último recurso: o código postal de 7 dígitos (aparece sempre nas guias e é fiável) dá pelo menos a zona da rua.
+      const found = photonCandidates(await geocodeQuery(row.postal + ', Portugal', timeout));
+      const hit = found.find(candidate => candidate.postcode === row.postal) || found.find(candidate => candidate.postcode && candidate.postcode.slice(0, 4) === row.postal.slice(0, 4));
+      if (hit) {choice = {status:'aproximada', candidate:{...hit, name:'zona do código postal ' + row.postal + (hit.city ? ' (' + hit.city + ')' : ''), numberMatch:false}, options:[]}; row.byPostal = true;}
+    }
     row.status = choice.status; row.options = choice.options;
     if (choice.candidate) {row.point = [...choice.candidate.point]; row.approx = !choice.candidate.numberMatch; row.label = choice.candidate.name;}
   } catch (error) {
@@ -1432,7 +1575,7 @@ function summary(rows) {
 }
 async function locateRows(rows) {
   if (active || addressRequest || !rows.length) return;
-  const controller = new AbortController(); addressRequest = controller; pendingPlacement = null;
+  const controller = new AbortController(); addressRequest = controller; stopPlacement();
   refreshImportControls();
   try {
     for (let index = 0; index < rows.length; index++) {
@@ -1453,16 +1596,22 @@ function startReview(text) {
   return locateRows(addressRows);
 }
 function addLocatedRows() {
-  const ready = locatedRows();
+  const nearDepot = depot ? locatedRows().filter(row => row.status !== 'manual' && geoDistance(row.point, depot) < 300) : [];
+  const ready = locatedRows().filter(row => !nearDepot.includes(row));
   if (!depot || !ready.length) return 0;
   const room = 100 - deliveries.length;
   if (room <= 0) {importStatus('A rota já tem 100 entregas.'); return 0;}
   const taking = ready.slice(0, room);
-  for (const row of taking) {const point = [...row.point]; deliveries.push(point); deliveryMetadata.set(point, (row.address || row.original) + (row.approx ? ' (≈ rua)' : ''));}
+  for (const row of taking) {
+    const point = [...row.point]; deliveries.push(point);
+    const info = row.info && Object.keys(row.info).length ? {...row.info} : null;
+    deliveryMetadata.set(point, (info?.nome ? info.nome + ' — ' : '') + (row.address || row.original) + (row.approx ? (row.byPostal ? ' (≈ código postal)' : ' (≈ rua)') : ''));
+    if (info) deliveryInfo.set(point, info);
+  }
   addressRows = addressRows.filter(row => !taking.includes(row));
   cached = null; render(); drawAddressReview();
   map.fitBounds([depot,...deliveries],{padding:[40,40],maxZoom:17});
-  importStatus(taking.length + ' moradas adicionadas à rota.' + (addressRows.length ? ' Ficaram ' + addressRows.length + ' por resolver na lista abaixo.' : ''));
+  importStatus(taking.length + ' moradas adicionadas à rota.' + (nearDepot.length ? ' ' + nearDepot.length + ' ficaram de fora por estarem junto ao armazém.' : '') + (addressRows.length ? ' Ficaram ' + addressRows.length + ' na lista abaixo.' : ''));
   return taking.length;
 }
 byId('address-file').onchange = async event => {
@@ -1500,7 +1649,7 @@ byId('locate-depot').onclick = async () => {
 };
 byId('depot-address').onkeydown = event => {if (event.key === 'Enter') byId('locate-depot').click();};
 byId('download-model').onclick = () => {
-  const text = '# Uma morada por linha. Localidade por omissão: Aveiro.\n# Formato opcional: morada | localidade | código postal\nAvenida Lourenço Peixinho, nº 184, 3º Esq. | Aveiro\nRua do Barreiro, nº 09 - 11 | Aveiro\n';
+  const text = '# Uma morada por linha. Localidade por omissão: ' + currentZone().nome + '.\n# Formato opcional: morada | localidade | código postal | dados (nome=…; franja=AM)\n' + currentZone().modeloTxt;
   const url = URL.createObjectURL(new Blob(['﻿',text],{type:'text/plain;charset=utf-8'}));
   const link = document.createElement('a'); link.href = url; link.download = 'Modelo-moradas.txt'; link.click(); setTimeout(() => URL.revokeObjectURL(url),1000);
 };
@@ -1533,7 +1682,7 @@ const fmtMin = seconds => {const minutes = Math.max(1, Math.ceil(seconds / 60));
 const fmtTime = iso => {try {return new Date(iso).toLocaleTimeString('pt-PT', {hour:'2-digit', minute:'2-digit'});} catch (error) {return '';}};
 
 // Ligações oficiais: Google Maps URLs (api=1) e Waze deep links. Só abrem a navegação até ao destino indicado;
-// a ordem das paragens é sempre a calculada pelo Rotas Aveiro.
+// a ordem das paragens é sempre a calculada pelo Rotas Entregas.
 function navLinks(point) {
   const ll = point[0].toFixed(6) + ',' + point[1].toFixed(6);
   return {
@@ -1545,7 +1694,7 @@ function navLinks(point) {
 // ---------- persistência local (só neste dispositivo) ----------
 function persist() {
   const data = {version:1, savedAt:new Date().toISOString(),
-    planning:{depot, depotLabel, deliveries:deliveries.map(point => ({point, label:deliveryMetadata.get(point) || ''}))},
+    planning:{depot, depotLabel, deliveries:deliveries.map(point => ({point, label:deliveryMetadata.get(point) || '', info:deliveryInfo.get(point) || null}))},
     trip};
   try {localStorage.setItem(STORE_KEY, JSON.stringify(data)); storageOk = true; savedAt = data.savedAt;}
   catch (error) {storageOk = false;}
@@ -1567,11 +1716,12 @@ function restoreSaved() {
   if (data && data.planning) {
     const planning = data.planning;
     if (validPoint(planning.depot)) {depot = [...planning.depot]; depotLabel = String(planning.depotLabel || '').slice(0, 300);}
-    deliveries = []; deliveryMetadata.clear();
+    deliveries = []; deliveryMetadata.clear(); deliveryInfo.clear();
     (Array.isArray(planning.deliveries) ? planning.deliveries : []).slice(0, 100).forEach(item => {
       if (!item || !validPoint(item.point)) return;
       const point = [...item.point]; deliveries.push(point);
       if (item.label) deliveryMetadata.set(point, String(item.label).slice(0, 500));
+      if (item.info && typeof item.info === 'object') {const info = parseStopInfo(formatStopInfo(item.info)); if (Object.keys(info).length) deliveryInfo.set(point, info);}
     });
     if (depot) setMode('delivery');
   }
@@ -1621,6 +1771,7 @@ function rememberPlan(points, solution, matrix, road) {
   lastPlan = {points:points.map(point => [...point]), order:[...solution.order], exact:solution.exact,
     snapped:matrix.snapped.map(waypoint => [waypoint.location[1], waypoint.location[0]]),
     labels:points.map((_, index) => index === 0 ? (depotLabel || 'Armazém') : (deliveryMetadata.get(deliveries[index - 1]) || 'Ponto no mapa ' + index)),
+    infos:points.map((_, index) => index === 0 ? null : (deliveryInfo.get(deliveries[index - 1]) || null)),
     road:{coordinates:road.coordinates, meters:road.meters, seconds:road.seconds, legs:road.legs.map(leg => ({distance:leg.distance, duration:leg.duration}))}};
   replaceArmed = false; drawTripOffer();
 }
@@ -1641,7 +1792,7 @@ function drawTripOffer() {
 function startTrip() {
   const plan = lastPlan; if (!plan) return;
   const created = new Date().toISOString();
-  const stops = plan.order.slice(1, -1).map((index, position) => ({id:'p' + (position + 1), label:plan.labels[index], point:plan.points[index], access:plan.snapped[index], status:'pendente', changedAt:null}));
+  const stops = plan.order.slice(1, -1).map((index, position) => ({id:'p' + (position + 1), label:plan.labels[index], info:plan.infos?.[index] || null, point:plan.points[index], access:plan.snapped[index], status:'pendente', changedAt:null}));
   trip = {id:Date.now().toString(36), createdAt:created, depot:{point:plan.points[0], label:plan.labels[0], access:plan.snapped[0]}, stops, plan:stops.map(stop => stop.id),
     route:{coordinates:plan.road.coordinates, meters:plan.road.meters, seconds:plan.road.seconds, legs:plan.road.legs, from:'do armazém', closed:true, computedAt:created, exact:plan.exact},
     lastDone:null, routeStale:false};
@@ -1682,7 +1833,7 @@ async function reoptimizeFrom(start, from) {
     const matrix = await client.matrix(points, controller.signal, tripMsg);
     controller.signal.throwIfAborted();
     tripMsg('A otimizar a sequência das pendentes por distância rodoviária…');
-    const solution = optimizeMatrix(openPathCosts(matrix.distances, last));
+    const solution = optimizeMatrix(franjaCosts(openPathCosts(matrix.distances, last), ['', ...pending.map(stop => stop.info?.franja || ''), '']));
     if (solution.order.at(-2) !== last) throw new Error('Não foi possível ordenar as pendentes com o armazém no fim.');
     const path = solution.order.slice(0, -1);
     const road = await client.geometry(points, path, matrix, controller.signal, tripMsg, false);
@@ -1728,6 +1879,15 @@ function navRow(point, label) {
   const waze = el('a', 'big nav-btn', 'Waze'); waze.href = links.waze; waze.target = '_blank'; waze.rel = 'noopener'; waze.setAttribute('aria-label', 'Navegar com Waze até ' + label);
   row.append(google, waze); return row;
 }
+function stopDetails(stop) {
+  const info = stop.info; const box = el('div', 'stop-info');
+  if (!info) return box;
+  if (info.franja) box.append(el('span', 'chip franja ' + info.franja.toLowerCase(), info.franja === 'AM' ? '🕘 Manhã (AM)' : '🕑 Tarde (PM)'));
+  if (info.tipo) box.append(el('span', 'chip tipo' + (info.tipo.includes('Recolha') ? ' recolha' : ''), (info.tipo.includes('Recolha') ? '♻ ' : '📦 ') + info.tipo));
+  if (info.artigo) box.append(el('p', 'artigo', info.artigo));
+  if (info.guia || info.paragem) box.append(el('p', 'hint', [info.paragem ? 'Nº na guia: ' + info.paragem : '', info.guia ? 'Guia ' + info.guia : ''].filter(Boolean).join(' · ')));
+  return box;
+}
 function statusRow(stop) {
   const row = el('div', 'st-row');
   for (const [status, text, css] of [['entregue', '✓ Entregue', 'ok'], ['nao-entregue', '✗ Não entregue', 'ko'], ['pendente', '↺ Pendente', 'pe']]) {
@@ -1761,7 +1921,7 @@ function drawTrip(fit) {
   if (nextId) {
     const stop = stopById(nextId); const position = trip.plan.indexOf(nextId) + 1;
     const card = el('section', 'next-card'); card.setAttribute('aria-label', 'Próxima entrega');
-    card.append(el('p', 'kicker', 'Próxima entrega · paragem ' + position + ' de ' + progress.total), el('h3', '', stop.label), navRow(stop.point, stop.label), statusRow(stop));
+    card.append(el('p', 'kicker', 'Próxima entrega · paragem ' + position + ' de ' + progress.total), el('h3', '', stop.label), stopDetails(stop), navRow(stop.point, stop.label), statusRow(stop));
     panel.append(card);
   } else {
     const card = el('section', 'next-card done');
@@ -1778,7 +1938,7 @@ function drawTrip(fit) {
     const stop = stopById(id);
     const item = el('li', 'stop-card st-' + stop.status + (id === nextId ? ' is-next' : ''));
     const head = el('h3'); head.append(el('span', 'num', String(index + 1)), el('span', 'lbl', stop.label), el('span', 'chip ' + stop.status, STATUS_LABEL[stop.status]));
-    item.append(head);
+    item.append(head, stopDetails(stop));
     if (stop.changedAt && stop.status !== 'pendente') item.append(el('p', 'hint', STATUS_LABEL[stop.status] + ' às ' + fmtTime(stop.changedAt)));
     item.append(navRow(stop.point, stop.label), statusRow(stop));
     list.append(item);
@@ -1868,7 +2028,8 @@ render = function () {renderPlanning(); lastPlan = null; drawTripOffer(); persis
 for (const button of document.querySelectorAll('.tabs button')) button.onclick = () => showView(button.dataset.view);
 byId('depot').addEventListener('click', () => {if (isMobile()) startMapPick('Toca numa rua para definir o armazém.');});
 byId('delivery').addEventListener('click', () => {if (isMobile()) startMapPick('Toca nas ruas para adicionar entregas. Volta a «Planear» quando terminares.');});
-byId('map-hint-close').onclick = () => {pickingStart = false; pendingPlacement = null; endMapPick(); if (trip) tripMsg('Escolha no mapa cancelada.');};
+byId('map-hint-close').onclick = () => {const wasPlacing = Boolean(pendingPlacement); pickingStart = false; stopPlacement(); endMapPick(); if (wasPlacing) importStatus('Marcação no mapa cancelada; o ponto anterior mantém-se.'); if (trip) tripMsg('Escolha no mapa cancelada.');};
+byId('map-hint-ok').onclick = () => confirmPlacement();
 updateNetBanner();
 restoreSaved();
 drawTrip(false);
@@ -1889,7 +2050,7 @@ let sheetImport = null; // {sheets:[{name, rows}], sheetIndex, map:{address, num
 
 // ---------- utilitários de texto ----------
 const POSTAL_RE = /\b(\d{4})\s*[-–—]\s*(\d{3})\b/;
-const STREET_RE = /(^|[\s,])(rua|r\.|avenida|av\.?|avda\.?|travessa|tv\.|trav\.?|largo|lg\.|pra[cç]a|p[cç]\.|praceta|estrada|est\.|beco|urbaniza[cç][aã]o|urb\.|bairro|lugar|quinta|alameda|rotunda|caminho|zona industrial|edif[ií]cio|cal[cç]ada|parque|loteamento|vila|via)(?=[\s.,]|$)/i;
+const STREET_RE = /(^|[\s,])(rua|r\.|avenida|av\.?|avda\.?|travessa|tv\.|trav\.?|largo|lg\.|pra[cç]as?|p[cç]\.|praceta|estrada|est\.|beco|urbaniza[cç][aã]o|urb\.?|bairro|lugar|quinta|alameda|rotunda|caminho|zona industrial|edif[ií]cio|cal[cç]ada|parque|loteamento|vila|via)(?=[\s.,]|$)/i;
 const PHONE_RE = /(?:\+?\s?351[\s.-]?)?\b(?:9[1236]\d|2\d{2})[\s.-]?\d{3}[\s.-]?\d{3}\b/g;
 const EMAIL_RE = /[^\s@]+@[^\s@]+\.[a-z]{2,}/gi;
 const NOISE_RE = /^(tel|telf|tlf|tlm|telefone|telem[oó]vel|contacto|contato|e-?mail|nif|contribuinte|encomenda|enc\.|pedido|ref|refer[eê]ncia|volumes?|peso|kg|obs|observa[cç](ão|oes|ões)|cliente|destinat[aá]rio|remetente|hora|data|pagamento|valor|total|cobran[cç]a|entregas?|guia|n\.?\s*º?\s*(de\s+)?(encomenda|pedido|guia))\b/i;
@@ -1957,17 +2118,48 @@ function buildLine(street, locality, postal) {
 }
 
 // ---------- texto colado (Google Lens / Texto Ativo / PDF / mensagens) ----------
+// Nome de pessoa/destinatário: 2 a 6 palavras com maiúscula inicial, sem números (ex.: «Alexandra Melo Santos Macedo»).
+const NAME_RE = /^[A-ZÀ-Ý][a-zà-ÿ'´]+(?:\s+(?:d[aeo]s?|e|[A-ZÀ-Ý][a-zà-ÿ'´.]*)){1,5}$/;
+const COMPANY_RE = /\b(radio popular|worten|fnac|cd |armaz[eé]m|lda|s\.?a\.?$|unipessoal|log[ií]stica|entregas|totalm[eé]dia)\b/i;
+function looksLikeName(text) {const value = String(text || '').trim(); return NAME_RE.test(value) && !COMPANY_RE.test(value + ' ') && !STREET_RE.test(value);}
+// Moradas a ignorar sempre (loja, armazém, expedidor…), memorizadas neste aparelho quando o motorista carrega em «Ignorar sempre».
+const IGNORE_KEY = 'rotas-aveiro-ignorar-v1';
+function addressKey(street, postal) {return normText(expandAbbreviations(String(street || ''))).replace(/\b(n|nr|no|numero)\b/g, ' ').replace(/\s+/g, ' ').trim() + '|' + (postal || '');}
+function ignoredAddresses() {try {const list = JSON.parse(localStorage.getItem(IGNORE_KEY) || '[]'); return new Set(Array.isArray(list) ? list.filter(item => typeof item === 'string') : []);} catch (error) {return new Set();}}
+function rememberIgnored(key) {try {const list = [...ignoredAddresses()].filter(item => item !== key); list.unshift(key); localStorage.setItem(IGNORE_KEY, JSON.stringify(list.slice(0, 60))); return true;} catch (error) {return false;}}
+function forgetIgnored() {try {localStorage.removeItem(IGNORE_KEY);} catch (error) {}}
+// Abreviaturas típicas das guias de transporte: «R 10 De Dezembro Nr 13 Frac Bp», «N602», «Es Querdo», «Oliveira Bcl».
+const LOCALITY_ABBR = {bcl:'Barcelos', vct:'Viana do Castelo', vng:'Vila Nova de Gaia', smf:'Santa Maria da Feira', pvz:'Póvoa de Varzim', vfx:'Vila Franca de Xira'};
+function guideCleanup(text) {
+  return String(text)
+    .replace(/(^|\s)R\s+(?=[\dA-ZÀ-Ý])/g, '$1Rua ')
+    .replace(/\bN[rº]?\.?\s?(\d{1,4}[A-Za-z]?)\b/g, ', $1')
+    .replace(/(\S)\s*\b(Es\s+querdo|Esquerdo|Esq\.?|Di\s+reito|Direito|Dto\.?)(?=\s|,|$)/gi, (all, before, side) => /[º°ª]/.test(before) ? all : before + ', ' + (/^e/i.test(side) ? 'Esq.' : 'Dto.')).replace(/\s+(Edif[ií]cio)\b/gi, ', Edifício')
+    .replace(/\s+(Frac\.?|Fra[cç][aã]o)\s+/gi, ', Fração ')
+    .replace(/\b(Bcl|Vct|Vng|Smf|Pvz|Vfx)\b(?=\s*$|\s*[,;])/gi, word => LOCALITY_ABBR[word.toLowerCase()] || word)
+    .replace(/\s+,/g, ',').replace(/,\s*,/g, ',');
+}
 function organizeText(raw) {
-  const result = {lines:[], dropped:[]};
+  const result = {lines:[], dropped:[], repeated:[], ignored:[], merged:0};
   if (typeof raw !== 'string' || !raw.trim()) return result;
   const source = repairPostalCodes(raw.replace(/^﻿/, '').split(/\r\n|\n|\r/));
-  let pending = null;
-  const flush = () => {if (pending) {result.lines.push(buildLine(pending, '', '')); pending = null;}};
+  let pending = null; let pendingName = ''; let lastName = '';
+  // Horário e tipo da linha da guia em curso («5 AM Entrega …»): passam para as moradas lidas a seguir.
+  let rowFranja = ''; let rowTipo = ''; const franjasSeen = new Set();
+  const emit = (street, locality, postal) => {
+    const line = buildLine(street, locality, postal);
+    if (line) result.lines.push(withInfo(line, {nome:pendingName || '', franja:rowFranja, tipo:rowTipo}));
+    pendingName = ''; lastName = '';
+  };
+  const flush = () => {if (pending) {emit(pending, '', ''); pending = null;}};
+  const takeName = text => {const match = STREET_RE.exec(text); if (!match || match.index === 0) return ''; const before = text.slice(0, match.index).replace(/[\s,;:–-]+$/, '').trim(); return looksLikeName(before) ? before : '';};
   const isStreet = text => STREET_RE.test(text) || /^[A-Za-zÀ-ÿ'´`.ºª -]{3,}\s*,?\s*(n\.?\s*º?\s*)?\d{1,4}[a-z]?\b/i.test(text);
   // Numa tabela fotografada, o nome vem antes da rua na mesma linha: começa na palavra «Rua», «Av.», etc.
   const fromStreetWord = text => {const match = STREET_RE.exec(text); return match && match.index > 0 ? text.slice(match.index + match[1].length).trim() : text;};
   for (const original of source) {
-    let line = original.replace(/[|¦=“”"«»_~^*<>[\]{}\\]+/g, ' ').replace(EMAIL_RE, ' ').replace(PHONE_RE, ' ')
+    const franjaMatch = /(?:^|\s)(AM|PM)(?=\s|$)/.exec(original); if (franjaMatch) {rowFranja = franjaMatch[1]; franjasSeen.add(rowFranja);}
+    const tipoMatch = /\b(Entrega|Recolha|Sucata)\b/i.exec(original); if (tipoMatch) rowTipo = normalizeTipo(tipoMatch[1]);
+    let line = guideCleanup(original).replace(/[|¦=“”"«»_~^*<>[\]{}\\]+/g, ' ').replace(EMAIL_RE, ' ').replace(PHONE_RE, ' ')
       .replace(/(^|[^\d-])\d{9}(?!\d)/g, '$1 ').replace(/(^|[^\d-])\d{3}[ .]\d{3}[ .]\d{3}(?![\d-])/g, '$1 ')
       .replace(/\b([1-9]\d{3})(\d{3})\b(?=\s+[A-Za-zÀ-ÿ]{3})/g, '$1-$2')
       .replace(/,?\s+n\.?\s*[ºo°]?\s*(?=,|$|\s+\d{4}-\d{3})/gi, ' ')
@@ -1981,21 +2173,56 @@ function organizeText(raw) {
     if (postal) {
       const parts = splitInlinePostal(line);
       let street = '';
-      if (parts.street && isStreet(parts.street)) street = fromStreetWord(parts.street);
+      if (parts.street && isStreet(parts.street)) {const name = takeName(parts.street); if (name) pendingName = name; else if (!pending && lastName) pendingName = lastName; street = fromStreetWord(parts.street);}
       else if (pending) street = pending + (parts.street && /\d/.test(parts.street) ? ', ' + parts.street : '');
       else if (parts.street && /[a-zà-ÿ]{3}/i.test(parts.street)) street = parts.street;
       pending = null;
       if (!street) {result.dropped.push(original.trim()); continue;}
-      result.lines.push(buildLine(street, parts.locality, parts.postal));
+      emit(street, parts.locality, parts.postal);
       continue;
     }
-    if (isStreet(line)) {flush(); pending = fromStreetWord(line); continue;}
+    if (isStreet(line)) {flush(); const name = takeName(line); pendingName = name || lastName; lastName = ''; pending = fromStreetWord(line); continue;}
     if (pending && /^(n\.?\s*º?\s*\d|\d{1,4}[a-z]?\b|\d{1,2}\s*[ºª°]|r\/c|cave|bloco|lote|apartamento|apto|fra[cç][aã]o)/i.test(line)) {pending += ', ' + line; continue;}
+    if (!pending && looksLikeName(line)) lastName = line; else if (!pending) lastName = '';
     result.dropped.push(original.trim());
   }
   flush();
-  result.lines = result.lines.filter(Boolean);
+  // Se a folha só tem um horário (ex.: só AM), aplica-o a todas as moradas.
+  if (franjasSeen.size === 1) {const only = [...franjasSeen][0]; result.lines = result.lines.map(line => {const fields = line.split(' | '); const info = parseStopInfo(fields[3] || ''); return info.franja ? line : withInfo(fields.slice(0, 3).join(' | '), {...info, franja:only});});}
+  return groupGuideLines(result.lines.filter(Boolean), result);
+}
+// Numa guia de transporte cada linha tem 3 moradas (loja, expedidor, destinatário). As da loja e do armazém repetem-se em
+// quase todas as linhas; as do cliente aparecem 1 ou 2 vezes (entrega + recolha do usado). Por isso:
+//  · morada que se repete 3 ou mais vezes → loja/armazém, ignorada;
+//  · morada memorizada com «Ignorar sempre» → ignorada;
+//  · a mesma morada 2 vezes → uma só paragem (fica o nome que tiver sido lido).
+function groupGuideLines(lines, result = {lines:[], dropped:[], repeated:[], ignored:[], merged:0}) {
+  const ignore = ignoredAddresses();
+  const entries = lines.map(line => {const fields = line.split(' | '); return {line, fields, key:addressKey(fields[0], normalizePostal(fields[2] || '')), info:parseStopInfo(fields[3] || '')};});
+  const counts = new Map(); entries.forEach(entry => counts.set(entry.key, (counts.get(entry.key) || 0) + 1));
+  const kept = new Map();
+  for (const entry of entries) {
+    if (ignore.has(entry.key)) {if (!result.ignored.includes(entry.fields[0])) result.ignored.push(entry.fields[0]); continue;}
+    if (counts.get(entry.key) >= 3 && entries.length >= 4) {if (!result.repeated.some(item => item.key === entry.key)) result.repeated.push({text:entry.fields.slice(0, 3).filter(Boolean).join(', '), times:counts.get(entry.key), key:entry.key}); continue;}
+    const previous = kept.get(entry.key);
+    if (previous) {
+      result.merged++;
+      const join = (a, b, glue) => [...new Set([a, b].filter(Boolean).flatMap(value => value.split(glue)))].join(glue);
+      previous.info = {...entry.info, ...previous.info, tipo:join(previous.info.tipo, entry.info.tipo, ' + '), artigo:join(previous.info.artigo, entry.info.artigo, ' + ')};
+      continue;
+    }
+    kept.set(entry.key, entry);
+  }
+  result.lines = [...kept.values()].map(entry => withInfo(entry.fields.slice(0, 3).join(' | '), entry.info));
   return result;
+}
+// Junta os dados da entrega como 4.º campo: «morada | localidade | código postal | nome=…; franja=…».
+function withInfo(line, info) {
+  const fields = String(line).split(' | ').slice(0, 3);
+  const text = formatStopInfo(info);
+  if (!text) {while (fields.length > 1 && !fields.at(-1)) fields.pop(); return fields.join(' | ');}
+  while (fields.length < 3) fields.push('');
+  return [...fields, text].join(' | ');
 }
 
 // ---------- leitura de ficheiros ----------
@@ -2093,8 +2320,17 @@ function parseCsv(text) {
 
 // ---------- deteção de colunas ----------
 function headerField(header) {
+  if (/^\s*(#|n\.?\s*º)\s*$/.test(String(header || ''))) return 'paragem';
   const text = normText(header);
   if (!text || text.length > 30 || /\d/.test(text)) return null;
+  if (/\b(destinatario|destinatarios)\b/.test(text)) return 'recipient';
+  if (/\b(expedidor|remetente)\b/.test(text)) return 'sender';
+  if (/\b(franja|horario|janela|periodo|turno)\b/.test(text)) return 'franja';
+  if (/\btipo\b/.test(text)) return 'tipo';
+  if (/\b(artigo|artigos|produto|produtos|mercadoria|descricao)\b/.test(text)) return 'artigo';
+  if (/\b(guia|documento|reserva)\b/.test(text)) return 'guia';
+  if (/^(paragem|sequencia|seq|ordem|stop)$/.test(text)) return 'paragem';
+  if (/\b(nome|cliente)\b/.test(text)) return 'name';
   if (/\b(codigo postal|cod postal|c postal|cp|postal|zip|cod post)\b/.test(text)) return 'postal';
   if (/\b(localidade|cidade|city|concelho|freguesia|localidad|municipio|povoacao|town)\b/.test(text)) return 'locality';
   if (/^(n|no|num|numero|nr|n porta|numero de porta|numero porta|porta|n de porta)$/.test(text)) return 'number';
@@ -2102,10 +2338,10 @@ function headerField(header) {
   return null;
 }
 function detectColumns(rows) {
-  const map = {address:-1, number:-1, postal:-1, locality:-1}; let headerRow = -1;
-  for (let index = 0; index < Math.min(rows.length, 6); index++) {
+  const map = {address:-1, number:-1, postal:-1, locality:-1, recipient:-1, sender:-1, name:-1, franja:-1, tipo:-1, artigo:-1, guia:-1, paragem:-1}; let headerRow = -1;
+  for (let index = 0; index < Math.min(rows.length, 8); index++) {
     const fields = rows[index].map(headerField);
-    if (fields.includes('address')) {
+    if (fields.includes('address') || fields.includes('recipient')) {
       headerRow = index;
       fields.forEach((field, column) => {if (field && map[field] < 0) map[field] = column;});
       break;
@@ -2121,9 +2357,31 @@ function detectColumns(rows) {
   }
   return {map, headerRow};
 }
+// «Alexandra Melo Santos Macedo Avenida Alcaides Faria N602 4750-106 Barcelos» → nome + rua + código postal + localidade
+function splitRecipient(text) {
+  const value = String(text || '').split(/[\r\n]+/).map(guideCleanup).join(' ').replace(/\s{2,}/g, ' ').replace(/^[\s,]+/, '').trim();
+  const match = STREET_RE.exec(value);
+  let name = '', rest = value;
+  if (match && match.index > 0) {name = value.slice(0, match.index + match[1].length).trim(); rest = value.slice(match.index + match[1].length).trim();}
+  else if (!match) {const lines = String(text || '').split(/[\r\n]+/).map(line => line.trim()).filter(Boolean); if (lines.length > 1) {name = lines[0]; rest = lines.slice(1).join(' ');}}
+  const parts = splitInlinePostal(rest);
+  return {name:name.replace(/[,;]+$/, '').slice(0, 80), street:parts.street || rest, postal:parts.postal, locality:parts.locality};
+}
 function sheetLines(rows, map, headerRow) {
   const lines = []; let skipped = 0;
+  const cell = (row, key) => map[key] >= 0 ? cleanCell(row[map[key]]) : '';
   rows.slice(headerRow + 1).forEach(row => {
+    if (map.address < 0 && map.recipient >= 0) {
+      // Guia de transporte: a morada do cliente está no Destinatário; nas recolhas (sucata) está no Expedidor.
+      const tipo = normalizeTipo(cell(row, 'tipo'));
+      const source = tipo === 'Recolha' && map.sender >= 0 && cell(row, 'sender') ? row[map.sender] : row[map.recipient];
+      if (!cleanCell(source)) {if (row.some(Boolean)) skipped++; return;}
+      const who = splitRecipient(source);
+      const line = buildLine(who.street, who.locality, who.postal);
+      if (!line) {skipped++; return;}
+      lines.push(withInfo(line, {nome:titleCaseIfUpper(cell(row, 'name') || who.name), franja:normalizeFranja(cell(row, 'franja')), tipo, artigo:cell(row, 'artigo'), guia:cell(row, 'guia').split(' ')[0], paragem:cell(row, 'paragem').split(/[\s/]/)[0]}));
+      return;
+    }
     const address = cleanCell(row[map.address]); if (!address) {if (row.some(Boolean)) skipped++; return;}
     const number = map.number >= 0 ? cleanCell(row[map.number]) : '';
     const inline = splitInlinePostal(address);
@@ -2131,9 +2389,128 @@ function sheetLines(rows, map, headerRow) {
     const postal = (map.postal >= 0 ? normalizePostal(row[map.postal]) : '') || inline.postal;
     const locality = (map.locality >= 0 ? titleCaseIfUpper(cleanCell(row[map.locality])) : '') || inline.locality;
     const line = buildLine(street, locality, postal);
-    if (line) lines.push(line); else skipped++;
+    if (line) lines.push(withInfo(line, {nome:titleCaseIfUpper(cell(row, 'name')), franja:normalizeFranja(cell(row, 'franja')), tipo:normalizeTipo(cell(row, 'tipo')), artigo:cell(row, 'artigo'), guia:cell(row, 'guia').split(' ')[0], paragem:cell(row, 'paragem').split(/[\s/]/)[0]})); else skipped++;
   });
-  return {lines, skipped};
+  const grouped = groupGuideLines(lines);
+  return {lines:grouped.lines, skipped, merged:grouped.merged, repeated:grouped.repeated};
+}
+
+// ---------- guia de transporte em PDF (texto verdadeiro, sem OCR) ----------
+// O PDF da guia tem o texto em colunas. Lê-se a posição (x, y) de cada pedaço de texto, encontram-se os títulos
+// das colunas (#, FRANJA, TIPO/SERVIÇO, EXPEDIDOR, DESTINATÁRIO, Guia, ARTIGO) e cada linha da tabela é delimitada
+// pelo número da paragem na coluna «#». O resultado é uma tabela igual à de um Excel, tratada por sheetLines().
+const PDF_COLUMNS = [
+  ['paragem', text => text === '#'],
+  ['franja', text => /^franja$/.test(text)],
+  ['tipo', text => /^(tipo|servico|tipo servico)$/.test(text)],
+  ['peso', text => /^peso$/.test(text)],
+  ['empresa', text => /^empresa$/.test(text)],
+  ['expedidor', text => /^(expedidor|remetente)$/.test(text)],
+  ['destinatario', text => /^destinatario$/.test(text)],
+  ['guia', text => /^(guia|reserva|documento)\b|\bguia\b/.test(text)],
+  ['artigo', text => /^artigo/.test(text)],
+  ['assinatura', text => /^(ass\b|recebido|qualquer dano|declaro)/.test(text)],
+  ['observacoes', text => /^observac/.test(text)]
+];
+const PDF_HEADER = {paragem:'#', franja:'FRANJA', tipo:'TIPO SERVIÇO', expedidor:'EXPEDIDOR', destinatario:'DESTINATÁRIO', guia:'GUIA', artigo:'ARTIGO'};
+// Na guia, a letra «C» sai separada do resto da palavra («C ruz», «PLAC A», «BOSC H», «C ANDY»).
+function pdfFixText(text, isItem) {
+  let value = String(text).replace(/(\S*[A-Za-zÀ-ÿ])C (?=[A-Za-zÀ-ÿ])/g, (all, before) => /^(SE|A)$/i.test(before) ? all : before + 'C').replace(/(^|[\s(])C (?=[a-zà-ÿ])/g, '$1C');
+  if (isItem) value = value.replace(/(^|\s)C (?=[A-Z]{2,})/g, '$1C');
+  return value;
+}
+function pdfGuideRows(pages) {
+  const rows = [['#', 'FRANJA', 'TIPO SERVIÇO', 'EXPEDIDOR', 'DESTINATÁRIO', 'GUIA', 'ARTIGO']];
+  const order = ['paragem', 'franja', 'tipo', 'expedidor', 'destinatario', 'guia', 'artigo'];
+  let tables = 0;
+  for (const page of pages) {
+    const items = page.items.filter(item => item.str && item.str.trim());
+    const dest = items.find(item => normText(item.str) === 'destinatario');
+    if (!dest) continue;
+    const header = items.filter(item => Math.abs(item.top - dest.top) <= 14);
+    const headerBottom = Math.max(...header.map(item => item.top)) + 4;
+    const columns = [];
+    for (const [key, test] of PDF_COLUMNS) {
+      const found = header.filter(item => test(normText(item.str)) || (key === 'paragem' && item.str.trim() === '#'));
+      if (found.length) columns.push({key, x0:Math.min(...found.map(item => item.x)), x1:Math.max(...found.map(item => item.x + item.width))});
+    }
+    columns.sort((a, b) => a.x0 - b.x0);
+    if (!columns.some(column => column.key === 'paragem') || !columns.some(column => column.key === 'destinatario')) continue;
+    const body = items.filter(item => item.top > headerBottom);
+    // Início de cada coluna: o texto mais à esquerda entre o fim do título anterior e o fim deste título (o texto vem alinhado à esquerda da célula).
+    columns.forEach((column, index) => {
+      const previous = index ? columns[index - 1].x1 : -Infinity;
+      // Só conta um início que se repita (texto alinhado à esquerda); um pedaço solto que transborda da coluna anterior não conta.
+      const starts = body.filter(item => item.x > previous && item.x <= column.x1).map(item => Math.round(item.x));
+      const repeated = starts.filter(value => starts.filter(other => Math.abs(other - value) <= 1).length >= 2);
+      column.left = index === 0 ? -Infinity : (repeated.length ? Math.min(...repeated) : starts.length ? Math.min(...starts) : column.x0) - 0.5;
+    });
+    const columnOf = item => {let found = columns[0]; for (const column of columns) if (item.x >= column.left) found = column; return found.key;};
+    // Centro de cada linha da tabela: entre o número da paragem («5») e a fração por baixo («1/2»).
+    const fractions = body.filter(item => columnOf(item) === 'paragem' && /^\d+\s*\/\s*\d+$/.test(item.str.trim()));
+    const anchors = body.filter(item => columnOf(item) === 'paragem' && /^\d{1,3}$/.test(item.str.trim())).map(item => {
+      const fraction = fractions.find(other => other.top > item.top && other.top - item.top < 14);
+      return {...item, top:fraction ? (item.top + fraction.top) / 2 : item.top + 4};
+    }).sort((a, b) => a.top - b.top);
+    if (!anchors.length) continue;
+    tables++;
+    const gaps = anchors.slice(1).map((anchor, index) => anchor.top - anchors[index].top).sort((a, b) => a - b);
+    const half = (gaps.length ? gaps[Math.floor(gaps.length / 2)] : 70) / 2;
+    anchors.forEach((anchor, index) => {
+      const top = index ? (anchors[index - 1].top + anchor.top) / 2 : anchor.top - half;
+      const bottom = index < anchors.length - 1 ? (anchor.top + anchors[index + 1].top) / 2 : anchor.top + half;
+      const cells = {};
+      body.filter(item => item.top >= top && item.top < bottom).sort((a, b) => a.top - b.top || a.x - b.x).forEach(item => {
+        const key = columnOf(item); (cells[key] = cells[key] || []).push(item);
+      });
+      const text = key => {
+        const lines = [];
+        for (const item of cells[key] || []) {const last = lines.at(-1); if (last && Math.abs(last.top - item.top) <= 2.5) last.parts.push(item.str.trim()); else lines.push({top:item.top, parts:[item.str.trim()]});}
+        return lines.map(line => line.parts.join(' ')).join('\n');
+      };
+      const artigo = pdfFixText(text('artigo'), true).replace(/\s*\bAT:[\s\S]*$/, '').replace(/\s*\n\s*/g, ' ').trim();
+      rows.push(order.map(key => key === 'artigo' ? artigo : key === 'paragem' ? text('paragem').replace(/\s+/g, ' ') : pdfFixText(text(key), false)));
+    });
+  }
+  return {rows, tables};
+}
+const PDF_FILES = {
+  script:'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js',
+  integrity:'sha384-/1qUCSGwTur9vjf/z9lmu/eCUYbpOTgSjmpbMQZ1/CtX2v/WcAIKqRv+U1DUCG6e',
+  worker:'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js',
+  workerIntegrity:'sha384-SnzOobpRMLXZ52iJvZm/C0fYw0OQemTXzTjIsdsfMcrCtCEe9qgzxTd3RSklO5x2'
+};
+let pdfEngine = null;
+function loadPdfEngine() {
+  if (pdfEngine) return pdfEngine;
+  pdfEngine = (async () => {
+    if (!window.pdfjsLib) await new Promise((resolve, reject) => {
+      const script = document.createElement('script'); script.src = PDF_FILES.script; script.integrity = PDF_FILES.integrity; script.crossOrigin = 'anonymous';
+      script.onload = resolve; script.onerror = () => reject(new Error('Não foi possível descarregar o leitor de PDF. Na primeira utilização é preciso Internet.'));
+      document.head.append(script);
+    });
+    if (!window.pdfjsLib) throw new Error('Leitor de PDF indisponível.');
+    // O «worker» tem de vir da mesma origem: descarrega-se (com verificação de integridade) e corre a partir de um blob.
+    const response = await fetch(PDF_FILES.worker, {integrity:PDF_FILES.workerIntegrity, mode:'cors'});
+    if (!response.ok) throw new Error('Não foi possível descarregar o leitor de PDF.');
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([await response.text()], {type:'text/javascript'}));
+    return window.pdfjsLib;
+  })();
+  pdfEngine.catch(() => {pdfEngine = null;});
+  return pdfEngine;
+}
+async function readPdfPages(buffer) {
+  const pdfjs = await loadPdfEngine();
+  const doc = await pdfjs.getDocument({data:new Uint8Array(buffer), isEvalSupported:false}).promise;
+  if (doc.numPages > 40) throw new Error('PDF com demasiadas páginas (máximo 40).');
+  const pages = [];
+  for (let number = 1; number <= doc.numPages; number++) {
+    const page = await doc.getPage(number); const height = page.getViewport({scale:1}).height;
+    const content = await page.getTextContent();
+    pages.push({items:content.items.filter(item => typeof item.str === 'string').map(item => ({str:item.str, x:item.transform[4], top:height - item.transform[5], width:item.width || 0}))});
+  }
+  doc.destroy();
+  return pages;
 }
 
 // ---------- interface ----------
@@ -2156,7 +2533,10 @@ function drawSheetImport() {
     box.append(label, select);
   }
   const width = Math.max(0, ...sheet.rows.slice(0, 50).map(row => row.length));
-  for (const [field, text, required] of [['address', 'Morada (rua)', true], ['number', 'Nº de porta', false], ['postal', 'Código postal', false], ['locality', 'Localidade', false]]) {
+  const guideMode = sheetImport.map.address < 0 && sheetImport.map.recipient >= 0;
+  if (guideMode) box.append(el('p', 'hint', 'Guia de transporte detetada: a morada e o nome vêm da coluna Destinatário (nas recolhas, do Expedidor).'));
+  const fieldList = [['address', 'Morada (rua)', !guideMode], ['number', 'Nº de porta', false], ['postal', 'Código postal', false], ['locality', 'Localidade', false], ['recipient', 'Destinatário (nome + morada)', false], ['name', 'Nome do cliente', false], ['franja', 'Horário / franja', false], ['tipo', 'Tipo de serviço', false], ['artigo', 'Artigo', false]];
+  for (const [field, text, required] of fieldList) {
     const label = el('label', '', text + (required ? '' : ' (opcional)')); const select = el('select'); select.id = 'map-' + field; label.htmlFor = select.id;
     const none = el('option', '', required ? '— escolhe a coluna —' : '— nenhuma —'); none.value = '-1'; select.append(none);
     for (let column = 0; column < width; column++) {const option = el('option', '', columnLabel(sheet.rows, sheetImport.headerRow, column)); option.value = String(column); option.selected = sheetImport.map[field] === column; select.append(option);}
@@ -2166,8 +2546,9 @@ function drawSheetImport() {
   const header = el('label', 'check'); const checkbox = el('input'); checkbox.type = 'checkbox'; checkbox.checked = sheetImport.headerRow >= 0; checkbox.id = 'map-header';
   checkbox.onchange = () => {sheetImport.headerRow = checkbox.checked ? 0 : -1; drawSheetImport();};
   header.append(checkbox, document.createTextNode(' A primeira linha tem os títulos das colunas')); box.append(header);
-  const {lines, skipped} = sheetImport.map.address >= 0 ? sheetLines(sheet.rows, sheetImport.map, sheetImport.headerRow) : {lines:[], skipped:0};
-  box.append(el('p', 'hint', sheetImport.map.address < 0 ? 'Escolhe a coluna com a morada.' : lines.length + ' moradas encontradas' + (skipped ? ' · ' + skipped + ' linha(s) sem morada ignoradas' : '') + '. As outras colunas (nomes, telefones…) não são usadas nem enviadas.'));
+  const usable = sheetImport.map.address >= 0 || sheetImport.map.recipient >= 0;
+  const {lines, skipped, merged = 0, repeated = []} = usable ? sheetLines(sheet.rows, sheetImport.map, sheetImport.headerRow) : {lines:[], skipped:0};
+  box.append(el('p', 'hint', !usable ? 'Escolhe a coluna com a morada.' : lines.length + ' moradas encontradas' + (merged ? ' · ' + merged + ' linha(s) da mesma morada juntas' : '') + (repeated.length ? ' · ' + repeated.length + ' morada(s) de loja/armazém ignoradas' : '') + (skipped ? ' · ' + skipped + ' linha(s) sem morada ignoradas' : '') + '. Nomes, horários e artigos ficam só neste aparelho; só a morada segue para a pesquisa.'));
   if (lines.length) {const preview = el('ol', 'preview'); lines.slice(0, 3).forEach(line => preview.append(el('li', '', line))); if (lines.length > 3) preview.append(el('li', 'hint', '… e mais ' + (lines.length - 3))); box.append(preview);}
   const actions = el('div', 'actions');
   const go = el('button', 'primary', lines.length > 100 ? 'Máximo 100 moradas (há ' + lines.length + ')' : 'Localizar ' + lines.length + ' moradas'); go.id = 'sheet-go';
@@ -2197,22 +2578,60 @@ async function importAddressFile(file) {
     drawSheetImport(); importStatus('CSV lido. Confirma as colunas e carrega em Localizar.');
     return;
   }
+  if (/\.pdf$/i.test(name) || file.type === 'application/pdf') {
+    importStatus('A ler o PDF neste dispositivo…');
+    const pages = await readPdfPages(buffer);
+    const {rows, tables} = pdfGuideRows(pages);
+    if (tables && rows.length > 1) {
+      const detected = detectColumns(rows);
+      const {lines, merged = 0} = sheetLines(rows, detected.map, detected.headerRow);
+      if (!lines.length) throw new Error('Não encontrei moradas de clientes nesta guia.');
+      if (lines.length > 100) throw new Error('A guia tem mais de 100 paragens. Divide-a em partes.');
+      byId('address-text').value = lines.join('\n');
+      const franjas = lines.map(line => parseStopInfo(line.split(' | ')[3] || '').franja).filter(Boolean);
+      importStatus('Guia em PDF lida: ' + (rows.length - 1) + ' linhas → ' + lines.length + ' paragens' + (merged ? ' (' + merged + ' da mesma morada juntas)' : '') + ' · ' + franjas.filter(f => f === 'AM').length + ' de manhã, ' + franjas.filter(f => f === 'PM').length + ' de tarde. A localizar as moradas…');
+      await startReview(byId('address-text').value);
+      return;
+    }
+    // PDF sem tabela de guia (lista de moradas): junta o texto por linhas e organiza-o como texto colado.
+    const text = pages.map(page => {
+      const lines = []; page.items.filter(item => item.str.trim()).sort((a, b) => a.top - b.top || a.x - b.x).forEach(item => {const last = lines.at(-1); if (last && Math.abs(last.top - item.top) <= 2.5) last.text += ' ' + item.str.trim(); else lines.push({top:item.top, text:item.str.trim()});});
+      return lines.map(line => line.text).join('\n');
+    }).join('\n');
+    if (!text.trim()) throw new Error('Este PDF não tem texto (é uma imagem digitalizada). Usa a opção da fotografia.');
+    byId('address-text').value = text; organizePasted();
+    return;
+  }
   if (/\.xls$|\.ods$|\.numbers$/i.test(name)) throw new Error('Formato não suportado. Guarda como Excel (.xlsx) ou CSV.');
   if (/\.txt$/i.test(name)) {
     const text = decodeText(buffer); byId('address-text').value = text;
     await startReview(text);
     return;
   }
-  throw new Error('Escolhe um ficheiro Excel (.xlsx), CSV ou TXT.');
+  throw new Error('Escolhe um ficheiro PDF da guia, Excel (.xlsx), CSV ou TXT.');
 }
 function organizePasted() {
   const raw = byId('address-text').value;
   const report = byId('organize-report'); report.replaceChildren();
   if (!raw.trim()) {importStatus('Cola primeiro o texto (por exemplo, copiado de uma fotografia com o Google Lens).'); return;}
-  const {lines, dropped} = organizeText(raw);
+  const {lines, dropped, repeated = [], ignored = [], merged = 0} = organizeText(raw);
   if (!lines.length) {importStatus('Não encontrei moradas neste texto. Confirma que inclui a rua (e, se possível, o código postal).'); return;}
   byId('address-text').value = lines.join('\n');
-  importStatus(lines.length + ' moradas organizadas. Revê a lista e carrega em «Localizar moradas».');
+  importStatus(lines.length + ' moradas organizadas' + (merged ? ' (' + merged + ' repetida(s) juntas na mesma paragem)' : '') + '. Revê a lista e carrega em «Localizar moradas».');
+  if (repeated.length || ignored.length) {
+    const box = el('details'); box.open = true;
+    box.append(el('summary', '', (repeated.length + ignored.length) + ' morada(s) de loja/armazém ignoradas'));
+    const list = el('ul');
+    repeated.forEach(item => {
+      const li = el('li', '', item.text + ' — aparece ' + item.times + ' vezes (loja ou armazém). ');
+      const keep = el('button', '', 'É uma entrega'); keep.onclick = () => {byId('address-text').value += '\n' + item.text.replace(/, (\d{4}-\d{3})$/, ' | | $1'); li.remove(); importStatus('Morada reposta na lista.');};
+      li.append(keep); list.append(li);
+    });
+    ignored.forEach(text => list.append(el('li', '', text + ' — marcada antes como «Ignorar sempre».')));
+    box.append(list);
+    if (ignored.length) {const reset = el('button', '', 'Esquecer as moradas ignoradas'); reset.onclick = () => {forgetIgnored(); importStatus('Lista de moradas ignoradas apagada deste aparelho. Organiza o texto de novo.');}; box.append(reset);}
+    report.append(box);
+  }
   if (dropped.length) {
     const details = el('details'); details.append(el('summary', '', dropped.length + ' linha(s) ignoradas (nomes, telefones, referências…) — verificar'));
     const list = el('ul'); dropped.slice(0, 60).forEach(line => list.append(el('li', '', line))); details.append(list, el('p', 'hint', 'Estas linhas não são enviadas a nenhum serviço. Se alguma for uma morada, escreve-a na lista acima.'));
@@ -2401,7 +2820,7 @@ byId('address-file').onchange = async event => {
 };
 byId('organize-text').onclick = organizePasted;
 byId('download-model').onclick = () => {
-  const csv = 'Morada;Nº;Código postal;Localidade;Nome (não é usado)\r\nAvenida Doutor Lourenço Peixinho;184;3800-167;Aveiro;\r\nRua de Viseu;10;3800-261;Aveiro;\r\n';
+  const csv = 'Morada;Nº;Código postal;Localidade;Nome\r\n' + currentZone().modeloCsv;
   const url = URL.createObjectURL(new Blob(['﻿', csv], {type:'text/csv;charset=utf-8'}));
   const link = document.createElement('a'); link.href = url; link.download = 'Modelo-entregas.csv'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
@@ -2417,5 +2836,26 @@ refreshImportControls = function () {
 };
 refreshImportControls();
 
+
+// ===== Zona de trabalho (v4.0): Aveiro e Viseu na mesma app =====
+function applyZone(initial) {
+  const zone = currentZone();
+  byId('zone-select').value = zoneKey;
+  byId('zone-title').textContent = '· ' + zone.nome;
+  const locality = byId('default-locality');
+  const known = Object.values(ZONES).map(item => item.nome);
+  if (initial ? !locality.dataset.edited : (!locality.value.trim() || known.includes(locality.value.trim()))) locality.value = zone.nome;
+  byId('depot-address').placeholder = zone.placeholderArmazem;
+  byId('address-text').placeholder = zone.placeholderMoradas;
+  if (!initial && !depot && !deliveries.length) map.setView(zone.centro, 14);
+}
+byId('default-locality').addEventListener('input', () => {byId('default-locality').dataset.edited = '1';});
+byId('zone-select').onchange = () => {
+  const next = byId('zone-select').value; if (!ZONES[next]) return;
+  zoneKey = next; try {localStorage.setItem(ZONE_KEY, next);} catch (error) {}
+  applyZone(false);
+  byId('status').textContent = 'Zona de trabalho: ' + currentZone().nome + '.' + (depot ? ' O armazém e as entregas já marcados mantêm-se.' : '');
+};
+applyZone(true);
 </script>
 </body></html>
